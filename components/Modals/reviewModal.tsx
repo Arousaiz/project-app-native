@@ -1,5 +1,5 @@
 import { Orders } from "@/types/order";
-import { Pressable, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import ReviewForm from "../Forms/ReviewForm";
 import Modal from "../ui/Modal"; // твой кастомный модальный компонент
 
@@ -26,15 +26,17 @@ export default function ReviewModal({ open, onClose, order }: Props) {
 
   return (
     <Modal open={open} onClose={onClose}>
-      <View className="bg-white rounded-2xl w-[90%] max-h-[90%] p-4">
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-lg font-semibold">Оставьте отзыв</Text>
-          <Pressable onPress={onClose}>
-            <Text className="text-xl text-gray-400">✕</Text>
-          </Pressable>
-        </View>
-        <ReviewForm order={dto} onClose={onClose} />
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-lg font-semibold">Оставьте отзыв</Text>
       </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        style={{ maxHeight: "90%" }} // чтобы ограничить высоту ScrollView
+      >
+        <ReviewForm order={dto} onClose={onClose} />
+      </ScrollView>
     </Modal>
   );
 }

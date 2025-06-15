@@ -1,5 +1,6 @@
 import type { Promotions } from "@/types/promotions";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function PromotionCard({
@@ -11,11 +12,12 @@ export default function PromotionCard({
   shouldWrapInLink?: boolean;
   onClick?: () => void;
 }) {
-  const navigation = useNavigation<any>();
+  const router = useRouter();
+  const [error, setError] = useState(false);
 
   const handlePress = () => {
     if (shouldWrapInLink && promo?.restaurant?.id) {
-      navigation.navigate("restaurant", { id: promo.restaurant.id });
+      router.push(`/restaurant/${promo.restaurant.id}`);
     } else if (onClick) {
       onClick();
     }
@@ -25,14 +27,17 @@ export default function PromotionCard({
     <TouchableOpacity
       onPress={handlePress}
       activeOpacity={0.8}
-      className="rounded-xl overflow-hidden bg-accent shadow-sm"
+      className="rounded-xl overflow-hidden bg-card shadow-sm"
     >
       <Image
         source={
-          promo?.img_url
-            ? { uri: promo.img_url }
-            : require("@/assets/placeholder-image.jpg")
+          error
+            ? require("@/assets/placeholder-image.jpg")
+            : {
+                uri: `https://pub-96480823ba5d4f44bb4d8cd67febd2f1.r2.dev/${promo?.img_url}`,
+              }
         }
+        onError={() => setError(true)}
         className="w-full h-40 object-cover"
         resizeMode="cover"
       />
@@ -41,7 +46,10 @@ export default function PromotionCard({
         <Text className="font-bold text-base mb-1" numberOfLines={1}>
           {promo?.title || "нет названия"}
         </Text>
-        <Text className="text-sm text-muted-foreground" numberOfLines={2}>
+        <Text
+          className="text-sm text-muted-foreground line-clamp-1"
+          numberOfLines={2}
+        >
           {promo?.description || "нет описания"}
         </Text>
       </View>

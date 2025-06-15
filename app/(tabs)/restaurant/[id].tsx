@@ -2,6 +2,7 @@ import { RestaurantService } from "@/api/api.restaurant";
 import ProductCard from "@/components/Card/MenuItemCard";
 import PromotionCard from "@/components/Card/PromotionCard";
 import RestaurantHeaderCard from "@/components/Card/RestaurantHeaderCard";
+import ProductModal from "@/components/Modals/MenuItemModal";
 import PrimaryButton from "@/components/ui/Buttons/PrimaryButton";
 import AppCarousel from "@/components/ui/Carousel/Carousel";
 import { SkeletonCard } from "@/components/ui/Skeletons/skeletonCard";
@@ -13,6 +14,7 @@ import { AxiosError } from "axios";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
@@ -29,28 +31,13 @@ export default function RestaurantDetails() {
   const highlightId = Array.isArray(params.highlight)
     ? params.highlight[0]
     : params.highlight ?? null;
+
   const isScrollingProgrammatically = useRef(false);
+  const itemRefs = useRef<{ [key: string]: number }>({});
   const categoryRefs = useRef<{ [key: string]: number }>({});
   const [activeCategory, setActiveCategory] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState<MenuItems | null>(null);
   const menuScrollViewRef = useRef<ScrollView>(null);
-
-  useEffect(() => {
-    if (
-      highlightId &&
-      menuScrollViewRef.current &&
-      categoryRefs.current[highlightId] !== undefined
-    ) {
-      const y = categoryRefs.current[highlightId];
-      const timeout = setTimeout(() => {
-        menuScrollViewRef.current?.scrollTo({
-          y: y - 100,
-          animated: true,
-        });
-      }, 300);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [highlightId]);
 
   const scrollToCategory = (category: string) => {
     if (!menuScrollViewRef.current) return;
@@ -120,6 +107,43 @@ export default function RestaurantDetails() {
       setActiveCategory(currentCategory);
     }
   };
+
+  useEffect(() => {
+    if (!highlightId || !menuScrollViewRef.current) return;
+
+    const scrollToItem = () => {
+      const itemPosition = itemRefs.current[highlightId];
+      if (itemPosition > 0) {
+        LayoutAnimation.configureNext({
+          duration: 500,
+          create: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          update: { type: LayoutAnimation.Types.easeInEaseOut },
+        });
+
+        menuScrollViewRef.current?.scrollTo({
+          y: itemPosition - 150,
+          animated: true,
+        });
+        return true;
+      }
+      return false;
+    };
+
+    requestAnimationFrame(() => {
+      if (!scrollToItem()) {
+        const interval = setInterval(() => {
+          if (scrollToItem()) {
+            clearInterval(interval);
+          }
+        }, 100);
+
+        return () => clearInterval(interval);
+      }
+    });
+  }, [highlightId, menu]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -226,7 +250,14 @@ export default function RestaurantDetails() {
                       key={item.id}
                       style={{
                         width: "48%",
-                        marginBottom: 16,
+                        marginBottom: 4,
+                      }}
+                      onLayout={(event) => {
+                        event.target.measure(
+                          (x, y, width, height, pageX, pageY) => {
+                            itemRefs.current[item.id] = pageY;
+                          }
+                        );
                       }}
                     >
                       <ProductCard
@@ -235,6 +266,7 @@ export default function RestaurantDetails() {
                         menuItem={item}
                         restaurantId={restaurantId}
                         openReview={() => {}}
+                        onClick={() => setSelectedItem(item)}
                       />
                     </View>
                   );
@@ -243,6 +275,27 @@ export default function RestaurantDetails() {
             </View>
           ))}
       </ScrollView>
+      {selectedItem && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999, // убедись, что выше всех остальных элементов
+          }}
+        >
+          <ProductModal
+            item={selectedItem}
+            restaurantId={restaurantId}
+            onClose={() => setSelectedItem(null)}
+          />
+        </View>
+      )}
     </View>
   );
 }

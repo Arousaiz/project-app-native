@@ -21,8 +21,8 @@ type AppCarouselProps<T> = {
 export default function AppCarousel<T>({
   data,
   renderItem,
-  itemWidth = width * 0.6,
-  itemMargin = 12,
+  itemWidth = width * 0.7,
+  itemMargin = 6,
   containerStyle,
 }: AppCarouselProps<T>) {
   return (
@@ -32,7 +32,7 @@ export default function AppCarousel<T>({
         keyExtractor={(_, index) => index.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={itemWidth + itemMargin * 2} // учитываем левый и правый margin
+        snapToInterval={itemWidth + itemMargin * 2}
         decelerationRate="fast"
         contentContainerStyle={{ paddingHorizontal: itemMargin }}
         renderItem={({ item, index }) => (

@@ -1,9 +1,11 @@
 import { MenuItems } from "@/types/menuItem";
 import { Restaurants } from "@/types/restaurant";
+import { useRouter } from "expo-router";
 import { Search } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   Pressable,
   Text,
@@ -30,6 +32,12 @@ export default function SearchModal({
     restaurants: Restaurants[];
   };
 }) {
+  const router = useRouter();
+  const windowHeight = Dimensions.get("window").height;
+
+  // Общий стиль для элемента результата
+  const itemContainerStyle = "bg-gray-100 rounded-lg px-4 py-3 mb-3";
+
   return (
     <Modal
       open={isMobileSearchOpen}
@@ -39,7 +47,10 @@ export default function SearchModal({
       }}
       size="full"
     >
-      <View className="bg-white rounded-xl p-4 max-h-[80%]">
+      <View
+        style={{ height: windowHeight * 0.9 }}
+        className="bg-white rounded-xl p-4"
+      >
         <View className="relative mb-3">
           <TextInput
             className="bg-gray-200 rounded-lg py-2 px-10 text-base text-black"
@@ -84,35 +95,34 @@ export default function SearchModal({
               </Text>
             ) : null
           }
-          renderItem={({ item }) =>
-            "address" in item ? (
+          renderItem={({ item }) => {
+            // Для всех элементов одинаковый стиль
+            return (
               <Pressable
-                className="bg-teal-100 rounded-lg px-3 py-3 mb-2"
+                className={itemContainerStyle}
                 onPress={() => {
                   setIsMobileSearchOpen(false);
                   setQuery("");
+                  if ("address" in item) {
+                    router.push(`/restaurant/${item.id}`);
+                  } else if (item.restaurant?.id) {
+                    router.push(
+                      `/restaurant/${item.restaurant.id}?highlight=${item.id}`
+                    );
+                  }
                 }}
               >
                 <Text className="font-semibold text-gray-800">{item.name}</Text>
                 <Text className="text-gray-600 mt-1 text-sm">
-                  {item.address?.city || ""}
+                  {"address" in item
+                    ? item.address?.city || ""
+                    : item.restaurant?.name || ""}
                 </Text>
               </Pressable>
-            ) : (
-              <Pressable
-                className="bg-gray-200 rounded-lg px-3 py-3 mb-2"
-                onPress={() => {
-                  setIsMobileSearchOpen(false);
-                  setQuery("");
-                }}
-              >
-                <Text className="font-semibold text-gray-800">{item.name}</Text>
-                <Text className="text-gray-600 mt-1 text-sm">
-                  {item.restaurant?.name || ""}
-                </Text>
-              </Pressable>
-            )
-          }
+            );
+          }}
+          style={{ flexGrow: 0 }}
+          contentContainerStyle={{ paddingBottom: 20 }}
         />
       </View>
     </Modal>

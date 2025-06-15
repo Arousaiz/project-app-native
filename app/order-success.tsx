@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { Text, View } from "react-native";
 
@@ -10,6 +11,10 @@ export default function OrderSuccessPage() {
   //     }
   //     clear();
   //   }, [clearCart]);
+
+  const queryClient = useQueryClient();
+
+  queryClient.invalidateQueries({ queryKey: ["profileOrders"] });
 
   return (
     <View className="flex-1 items-center justify-center p-4 bg-white">

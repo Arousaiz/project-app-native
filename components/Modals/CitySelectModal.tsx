@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import BottomSheet from "../ui/BottomSheet";
@@ -25,9 +26,12 @@ export default function CitySelectModal({
   setCity,
   city,
 }: Props) {
+  const router = useRouter();
+
   const handleSelect = async (name: string) => {
     await setCity(name);
     setCity(name);
+    router.push("/restaurant");
     onClose();
   };
 

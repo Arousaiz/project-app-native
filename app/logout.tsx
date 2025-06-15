@@ -9,7 +9,7 @@ export default function Logout() {
   useEffect(() => {
     async function performLogout() {
       await logout();
-      router.replace("/login");
+      router.replace("/restaurant");
     }
     performLogout();
   }, [logout, router]);

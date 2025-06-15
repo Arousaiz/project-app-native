@@ -1,25 +1,18 @@
 import { RestaurantService } from "@/api/api.restaurant";
-import { getCity } from "@/storage/city";
+import { useCity } from "@/storage/city";
 import { MenuItems } from "@/types/menuItem";
 import { Restaurants } from "@/types/restaurant";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { SearchIcon } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import SearchModal from "../Modals/searchModal";
 import PrimaryButton from "./Buttons/PrimaryButton";
 
 export default function Search() {
   const [query, setQuery] = useState("");
-  const [city, setCity] = useState<string | null>(null);
-  useEffect(() => {
-    (async () => {
-      const savedCity = await getCity();
-      setCity(savedCity);
-    })();
-  }, []);
-  //   const debouncedQuery = useDebounce(query, 300);
+  const { city, setCity } = useCity();
   const { data, isLoading, isError, error } = useQuery<
     { menuItems: MenuItems[]; restaurants: Restaurants[] },
     AxiosError

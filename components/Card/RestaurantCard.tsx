@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { StarIcon, TruckIcon } from "lucide-react-native";
+import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import PrimaryBadge from "../ui/Badges/PrimaryBadge";
 import { Card, CardContent, CardFooter } from "../ui/Card/Card";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardFooter } from "../ui/Card/Card";
 export default function RestaurantCard({ restaurant }: { restaurant: any }) {
   const router = useRouter();
   const deliveryTime = Math.floor(Math.random() * (60 - 30 + 1)) + 30;
+  const [error, setError] = useState(false);
 
   return (
     <Pressable
@@ -14,7 +16,14 @@ export default function RestaurantCard({ restaurant }: { restaurant: any }) {
     >
       <Card>
         <Image
-          source={require("@/assets/placeholder-image.jpg")}
+          source={
+            error
+              ? require("@/assets/placeholder-image.jpg")
+              : {
+                  uri: `https://pub-96480823ba5d4f44bb4d8cd67febd2f1.r2.dev/${restaurant.img_url}`,
+                }
+          }
+          onError={() => setError(true)}
           resizeMode="cover"
           className="w-full h-52 rounded-t-xl"
         />

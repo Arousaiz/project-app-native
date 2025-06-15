@@ -1,24 +1,13 @@
-import { getCity, saveCity } from "@/storage/city";
+import { useCity } from "@/storage/city";
 import { ChevronDown } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Text, View } from "react-native";
 import CitySelectModal from "./Modals/CitySelectModal";
 import PrimaryButton from "./ui/Buttons/PrimaryButton";
 
 export function CitySelector() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [city, setCity] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const savedCity = await getCity();
-      if (savedCity) {
-        setCity(savedCity);
-      } else {
-        setMobileMenuOpen(true);
-      }
-    })();
-  }, []);
+  const { city, setCity } = useCity();
 
   return (
     <View>
@@ -38,7 +27,6 @@ export function CitySelector() {
         city={city}
         setCity={(str: string) => {
           setCity(str);
-          saveCity(str);
         }}
       ></CitySelectModal>
     </View>

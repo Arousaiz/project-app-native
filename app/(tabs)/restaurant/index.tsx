@@ -4,7 +4,7 @@ import RestaurantCard from "@/components/Card/RestaurantCard";
 import PrimaryButton from "@/components/ui/Buttons/PrimaryButton";
 import AppCarousel from "@/components/ui/Carousel/Carousel";
 import { SkeletonCard } from "@/components/ui/Skeletons/skeletonCard";
-import { getCity } from "@/storage/city";
+import { useCity } from "@/storage/city";
 import { Promotions } from "@/types/promotions";
 import { Cuisines, Restaurants } from "@/types/restaurant";
 import { ApiData } from "@/utils/query-utils";
@@ -14,8 +14,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { FilterX, Settings2 } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -25,13 +24,7 @@ import {
 } from "react-native";
 
 export default function Index() {
-  const [city, setCity] = useState<string | null>(null);
-  useEffect(() => {
-    (async () => {
-      const savedCity = await getCity();
-      setCity(savedCity);
-    })();
-  }, []);
+  const { city } = useCity();
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("");
@@ -126,7 +119,7 @@ export default function Index() {
           alignItems: "center",
         }}
       >
-        <PrimaryButton variant="secondary" onPress={() => setOpen(true)}>
+        {/* <PrimaryButton variant="secondary" onPress={() => setOpen(true)}>
           <Settings2 />
         </PrimaryButton>
 
@@ -138,6 +131,14 @@ export default function Index() {
           }}
         >
           <FilterX />
+        </PrimaryButton> */}
+
+        <PrimaryButton
+          key={"all"}
+          variant={activeCategory === "" ? "primary" : "ghost"}
+          onPress={() => setActiveCategory("")}
+        >
+          <Text>Все</Text>
         </PrimaryButton>
 
         {cuisines?.data.map(({ name, id }) => (

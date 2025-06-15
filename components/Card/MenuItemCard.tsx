@@ -2,13 +2,13 @@ import { useConfirmAddToCart } from "@/hooks/use-cart";
 import { useAuth } from "@/providers/authContext";
 import { useCart } from "@/providers/cartContext";
 import { useFavorites } from "@/providers/favoritesContext";
+import { MenuItems } from "@/types/menuItem";
 import { Promotions, PromotionType } from "@/types/promotions";
 import { BookmarkIcon, PlusIcon, StarIcon } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import CounterButton from "../ui/Buttons/CounterButton";
 import PrimaryButton from "../ui/Buttons/PrimaryButton";
-import ConfirmDialog from "../ui/Dialogs/ConfirmDialog";
 
 export default function ProductCard({
   menuItem,
@@ -37,6 +37,7 @@ export default function ProductCard({
   const { toggleFavorite, isFavorite } = useFavorites();
   const { user } = useAuth();
   const showFavorites = user !== null;
+  const [error, setError] = useState(false);
 
   const isInCart = isItemInCart(menuItem.id);
   const isInFavorites = isFavorite(menuItem.id);
@@ -46,6 +47,8 @@ export default function ProductCard({
     requestAddToCart(menuItem, restaurantId);
   };
 
+  const [selectedItem, setSelectedItem] = useState<MenuItems | null>(null);
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -53,11 +56,16 @@ export default function ProductCard({
       className="bg-white rounded-xl my-2 overflow-hidden shadow-md"
       testID={id}
     >
-      <View className="relative w-full aspect-[4/3]">
+      <View className="relative w-full h-40">
         <Image
-          source={{
-            uri: menuItem.image || "@/assets/placeholder-image.jpg",
-          }}
+          source={
+            error
+              ? require("@/assets/placeholder-image.jpg")
+              : {
+                  uri: `https://pub-96480823ba5d4f44bb4d8cd67febd2f1.r2.dev/${menuItem.img_url}`,
+                }
+          }
+          onError={() => setError(true)}
           className="w-full h-full rounded-t-xl"
           resizeMode="cover"
         />
@@ -128,7 +136,7 @@ export default function ProductCard({
               <>
                 <Text className="line-through text-gray-400">
                   {menuItem.price}p
-                </Text>{" "}
+                </Text>
                 <Text className="text-primary font-bold">
                   {Math.round(menuItem.price * (1 - promotion.discount / 100))}p
                 </Text>
@@ -160,13 +168,18 @@ export default function ProductCard({
         </View>
       </View>
 
-      <ConfirmDialog
+      {/* <ConfirmDialog
         open={isConfirmOpen}
         title="Блюдо из другого ресторана"
         message="Хотите сбросить текущее содержимое корзины и добавить данное блюдо в корозину?"
         onCancel={cancelAdd}
         onConfirm={confirmAdd}
       />
+      <ProductModal
+        item={selectedItem}
+        restaurantId={restaurantId}
+        onClose={() => setSelectedItem(null)}
+      ></ProductModal> */}
     </TouchableOpacity>
   );
 }

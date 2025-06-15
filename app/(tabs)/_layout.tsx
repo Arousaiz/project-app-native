@@ -46,14 +46,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="restaurant"
         options={{
-          title: "Home",
+          title: "Главная",
           tabBarIcon: ({ color }) => (
             <FontAwesome size={28} name="home" color={color} />
           ),
           headerShown: false,
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="help"
         options={{
           title: "Help",
@@ -61,11 +61,11 @@ export default function TabLayout() {
             <Entypo name="help-with-circle" size={28} color="black" />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="cart"
         options={{
-          title: "Cart",
+          title: "Корзина",
           tabBarIcon: ({ color }) => <CartIconWithBadge color={color} />,
         }}
       />

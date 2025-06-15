@@ -1,6 +1,7 @@
 import { showToast } from "@/utils/toast";
 import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useRouter } from "expo-router";
 
 export const instance = axios.create({
   baseURL: "http://10.130.3.76:3000",
@@ -17,8 +18,9 @@ instance.interceptors.response.use(
   (error) => {
     if (error.response) {
       const status = error.response.status;
+      const router = useRouter();
 
-      console.log(error);
+      console.log(error.response);
 
       switch (status) {
         case 400:
@@ -27,9 +29,7 @@ instance.interceptors.response.use(
         case 401:
         case 403:
           showToast("Доступ запрещён. Пожалуйста, войдите в систему.");
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
-          }
+          router.push("/login");
           break;
         case 404:
           showToast("Ресурс не найден (404).");

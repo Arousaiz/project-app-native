@@ -2,16 +2,11 @@ import { ReviewService } from "@/api/api.review";
 import { showToast } from "@/utils/toast";
 import { CreateOrderReviewSchema } from "@/zodScheme/reviewSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import type { z } from "zod";
+import TextAreaBase from "../ui/Forms/TextArea";
 
 type Props = {
   order: {
@@ -53,6 +48,8 @@ export default function OrderReviewForm({ order, onClose }: Props) {
     name: "dishReviews",
   });
 
+  const queryClient = useQueryClient();
+
   const restaurantRating = watch("restaurantReview.rating");
   const dishRatings = watch("dishReviews");
 
@@ -60,6 +57,7 @@ export default function OrderReviewForm({ order, onClose }: Props) {
     mutationFn: ReviewService.writeReview,
     onSuccess: () => {
       showToast("Отзыв успешно отправлен!");
+      queryClient.invalidateQueries({ queryKey: ["profileOrders"] });
       onClose();
     },
     onError: (error) => {
@@ -84,7 +82,7 @@ export default function OrderReviewForm({ order, onClose }: Props) {
           control={control}
           name="restaurantReview.text"
           render={({ field: { onChange, value } }) => (
-            <TextInput
+            <TextAreaBase
               value={value}
               onChangeText={onChange}
               placeholder="Ваш отзыв о ресторане"
@@ -138,7 +136,7 @@ export default function OrderReviewForm({ order, onClose }: Props) {
               control={control}
               name={`dishReviews.${index}.text`}
               render={({ field: { onChange, value } }) => (
-                <TextInput
+                <TextAreaBase
                   value={value}
                   onChangeText={onChange}
                   placeholder="Ваш отзыв о блюде"

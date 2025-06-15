@@ -17,11 +17,11 @@ import ReviewCard from "./ReviewCard";
 export default function RestaurantHeaderCard({ id }: { id: string }) {
   const [infoVisible, setInfoVisible] = useState(false);
   const [reviewsVisible, setReviewsVisible] = useState(false);
+  const [error, setError] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["restaurantInfo", id],
     queryFn: () => RestaurantService.findRestaurant(id),
-    enabled: infoVisible,
   });
 
   const {
@@ -38,7 +38,14 @@ export default function RestaurantHeaderCard({ id }: { id: string }) {
     <View className="p-4">
       <View className="relative rounded-3xl overflow-hidden aspect-[16/9] bg-gray-200 shadow-xl">
         <Image
-          source={require("../../assets/placeholder-image.jpg")}
+          source={
+            error
+              ? require("@/assets/placeholder-image.jpg")
+              : {
+                  uri: `https://pub-96480823ba5d4f44bb4d8cd67febd2f1.r2.dev/${data?.data.img_url}`,
+                }
+          }
+          onError={() => setError(true)}
           className="w-full h-full object-cover"
           resizeMode="cover"
         />
